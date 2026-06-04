@@ -4,17 +4,13 @@ import { useState, useEffect, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { useApp } from '@/context/AppContext'
 import { createClient } from '@/lib/supabase/client'
-import type { Evidence } from '@/lib/types'
-import type { ReportSections, ReportMeta } from '@/lib/types'
+import type { Evidence, ReportSections, ReportMeta } from '@/lib/types'
 import toast from 'react-hot-toast'
 
-const PDFDownloadLink = dynamic(
-  () => import('@react-pdf/renderer').then((m) => m.PDFDownloadLink),
-  { ssr: false, loading: () => null }
-)
-const ReportDocument = dynamic(
-  () => import('@/components/report/ReportDocument'),
-  { ssr: false, loading: () => null }
+// react-pdf is browser-only — load the entire downloader as a client-only chunk
+const ReportDownloader = dynamic(
+  () => import('@/components/report/ReportDownloader'),
+  { ssr: false, loading: () => <span style={{ fontSize: 12, color: 'var(--text-3)' }}>Loading PDF renderer…</span> }
 )
 
 interface SavedReport {
@@ -275,11 +271,12 @@ export default function ReportsPage() {
                   <div style={{ marginTop: 2 }}>Hash: <span style={{ fontFamily: 'var(--mono)', color: 'var(--text-2)' }}>{readyReport.meta.contentHash.slice(0, 20)}…</span></div>
                 </div>
                 
-                <PDFDownloadLink document={<ReportDocument sections={readyReport.sections} meta={readyReport.meta} />}
+                <ReportDownloader
+                  sections={readyReport.sections}
+                  meta={readyReport.meta}
                   fileName={`witness-report-${readyReport.meta.reportId}.pdf`}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: 12, background: 'linear-gradient(135deg,#0f766e,#0ea5e9)', border: 'none', borderRadius: 'var(--r-md)', fontSize: 13, fontWeight: 500, color: '#fff', cursor: 'pointer', textDecoration: 'none', marginBottom: 8 }}>
-                  {({ loading }: { loading: boolean }) => loading ? 'Rendering PDF…' : <><i className="ph ph-download-simple" />Download PDF</>}
-                </PDFDownloadLink>
+                  variant="primary"
+                />
                 <button onClick={() => setReadyReport(null)} style={{ width: '100%', padding: 10, background: 'none', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', fontSize: 12, color: 'var(--text-3)', cursor: 'pointer' }}>
                   Generate another
                 </button>
@@ -320,11 +317,12 @@ export default function ReportsPage() {
                   </div>
                   <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--text-3)', flexShrink: 0 }}>{r.id}</span>
                   
-                  <PDFDownloadLink document={<ReportDocument sections={r.sections} meta={r.meta} />}
+                  <ReportDownloader
+                    sections={r.sections}
+                    meta={r.meta}
                     fileName={`witness-report-${r.id}.pdf`}
-                    style={{ padding: '7px 12px', background: 'var(--ink-3)', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', fontSize: 12, color: 'var(--text-2)', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                    {({ loading }: { loading: boolean }) => loading ? 'Loading…' : <><i className="ph ph-download-simple" />Download</>}
-                  </PDFDownloadLink>
+                    variant="secondary"
+                  />
                   <button onClick={() => { const u = savedReports.filter((x) => x.id !== r.id); localStorage.setItem('witness_reports', JSON.stringify(u)); setSavedReports(u) }}
                     style={{ width: 30, height: 30, borderRadius: 'var(--r-sm)', background: 'none', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: 'var(--text-3)', cursor: 'pointer', flexShrink: 0 }}>
                     <i className="ph ph-trash" />
