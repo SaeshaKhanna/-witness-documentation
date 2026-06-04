@@ -10,6 +10,18 @@ import toast from 'react-hot-toast'
 const FILE_TABS = ['All files', 'Documents', 'Images', 'Audio', 'Messages'] as const
 const FILE_FILTERS = ['All', 'Verified', 'Linked to memory', 'Unreviewed'] as const
 
+const TAB_EXTS: Record<string, string[]> = {
+  'All files':  [],
+  'Documents':  ['pdf','doc','docx','txt','csv'],
+  'Images':     ['png','jpg','jpeg','gif','webp','heic'],
+  'Audio':      ['mp3','m4a','wav','ogg','aac'],
+  'Messages':   ['txt','csv','eml','mbox'],
+}
+
+const TYPE_ORDER: Record<string, number> = {
+  pdf:0, docx:1, doc:1, txt:2, png:3, jpg:3, jpeg:3, gif:3, mp4:4, mp3:5, m4a:5, wav:5
+}
+
 const FILE_TYPE_MAP: Record<string, { thumb: string; icon: string; color: string }> = {
   pdf: { thumb: 'pdf', icon: 'ph-file-pdf', color: 'var(--rose)' },
   png: { thumb: 'img', icon: 'ph-image', color: 'var(--sky)' },
@@ -130,7 +142,22 @@ export default function VaultPage() {
           <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={(e) => { Array.from(e.target.files ?? []).forEach(uploadFile); e.target.value = '' }} />
         </div>
 
-        {evidence.map((ev) => {
+        {[...evidence]
+          .filter((ev) => {
+            const ext = ev.file_name.split('.').pop()?.toLowerCase() ?? ''
+            const allowed = TAB_EXTS[activeTab]
+            if (allowed && allowed.length > 0 && !allowed.includes(ext)) return false
+            return true
+          })
+          .sort((a, b) => {
+            const extA = a.file_name.split('.').pop()?.toLowerCase() ?? ''
+            const extB = b.file_name.split('.').pop()?.toLowerCase() ?? ''
+            const orderA = TYPE_ORDER[extA] ?? 99
+            const orderB = TYPE_ORDER[extB] ?? 99
+            if (orderA !== orderB) return orderA - orderB
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          })
+          .map((ev) => {
           const ft = getFileType(ev.file_name)
           return (
             <div key={ev.id} style={{ background: 'var(--ink-2)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)', overflow: 'hidden', cursor: 'pointer', transition: 'all 0.2s var(--ease)' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--border-2)'; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.3)' }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '' }}>

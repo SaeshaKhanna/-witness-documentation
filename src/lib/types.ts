@@ -31,6 +31,7 @@ export interface Evidence {
   file_size: number
   storage_path: string
   sha256_hash: string
+  uploaded_at?: string
   created_at: string
 }
 
