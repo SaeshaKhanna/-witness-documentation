@@ -1,3 +1,35 @@
+// ── Report types (kept here so reports/page.tsx never statically imports @react-pdf) ──
+export interface ReportSections {
+  caseOverview: string
+  chronologicalNarrative: string
+  keyPeople: string
+  keyLocations: string
+  emotionalSensoryRecord: string
+  evidenceSummary: string
+  confidenceAssessment: string
+  documentationNotes: string
+}
+
+export interface ReportMeta {
+  caseName: string
+  reportId: string
+  reportType: string
+  recipientName: string
+  generatedAt: string
+  generatedBy: string
+  totalMemories: number
+  totalEvidence: number
+  contentHash: string
+  evidenceList: Array<{
+    file_name: string
+    file_size: number
+    sha256_hash: string
+    uploaded_at: string
+  }>
+  includeEvidence: boolean
+  includeAuditTrail: boolean
+}
+
 export interface Case {
   id: string
   user_id: string

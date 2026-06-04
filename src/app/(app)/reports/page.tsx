@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import { useApp } from '@/context/AppContext'
 import { createClient } from '@/lib/supabase/client'
 import type { Evidence } from '@/lib/types'
-import type { ReportSections, ReportMeta } from '@/components/report/ReportDocument'
+import type { ReportSections, ReportMeta } from '@/lib/types'
 import toast from 'react-hot-toast'
 
 const PDFDownloadLink = dynamic(

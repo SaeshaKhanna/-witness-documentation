@@ -1,40 +1,9 @@
 'use client'
 
 import {
-  Document, Page, Text, View, StyleSheet, Font,
+  Document, Page, Text, View, StyleSheet,
 } from '@react-pdf/renderer'
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-export interface ReportSections {
-  caseOverview: string
-  chronologicalNarrative: string
-  keyPeople: string
-  keyLocations: string
-  emotionalSensoryRecord: string
-  evidenceSummary: string
-  confidenceAssessment: string
-  documentationNotes: string
-}
-
-export interface ReportMeta {
-  caseName: string
-  reportId: string
-  reportType: string
-  recipientName: string
-  generatedAt: string
-  generatedBy: string
-  totalMemories: number
-  totalEvidence: number
-  contentHash: string
-  evidenceList: Array<{
-    file_name: string
-    file_size: number
-    sha256_hash: string
-    uploaded_at: string
-  }>
-  includeEvidence: boolean
-  includeAuditTrail: boolean
-}
+import type { ReportSections, ReportMeta } from '@/lib/types'
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const C = {
